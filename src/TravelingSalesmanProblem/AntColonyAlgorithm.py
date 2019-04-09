@@ -32,8 +32,8 @@ class AntColonyAlgorithm( object ) :
         self.iter_max = iter_max
 
         # load datasets and initialize matrixes
-        print( 'in 2' )
-        print( datasets )
+        # print( 'in 2' )
+        # print( datasets )
         self.data = np.loadtxt( datasets )[ : , 1:]
         n = self.data.shape[0]
         self.n = n
@@ -86,6 +86,7 @@ class AntColonyAlgorithm( object ) :
         for i in range( self.n - 1 ):
             route_length = route_length + self.D[int(self.Table[ant_i, i]), int(self.Table[ant_i, i + 1])]
         route_length = route_length + self.D[int(self.Table[ant_i, self.n-1]), int(self.Table[ant_i, 0])]
+        return route_length
 
     def _route_length(self):
         length = np.zeros(self.m)
@@ -158,7 +159,9 @@ class AntColonyAlgorithm( object ) :
         self._update_pheromone_table( length )
 
     def excution(self):
+        print(" in excution of no diagnal cross avoidence")
         for i in range( self.iter_max ):
+            print( "in iteration %d" % i )
             self._in_a_generations( i )
             # print 'iteration %d' % i
             # print 'Best Route'
@@ -169,6 +172,7 @@ class AntColonyAlgorithm( object ) :
             # print self.Table[ : , 0]
 
     def print_information(self):
+        print("========================= in ant colony algorithm =====================")
         print ("Shortest_Route: ")
         print (self.Length_best[ int( self.Limit_iter )] )
         print ("Route: ")
@@ -176,8 +180,9 @@ class AntColonyAlgorithm( object ) :
         print ('limited_iter')
         print (self.Limit_iter)
         print ( np.min( self.Length_best ) )
+        print("========================= finished in ant colony algorithm =============")
 
-    def plot_route(self):
+    def plot_route_in_ant_colony_algorithm(self):
         route_index = self.Route_best[ int(self.Limit_iter)].tolist()
         route_index.append( self.Route_best[int( self.Limit_iter)][0] )
         route_index = [ int(i) for i in route_index]
