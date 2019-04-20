@@ -12,7 +12,7 @@ class ExactAlgorithm:
 
         self.data = np.loadtxt(datasets)[:, 1:]
         self.n = self.data.shape[0]
-        D = np.zeros(( self.n, self.n))
+        self.D = np.zeros(( self.n, self.n))
 
         self.adjust_edge = [-1 for i in range( self.n + 5)]
         self.adjust_edge_length = [-1 for i in range( self.n + 5)]
@@ -76,8 +76,9 @@ class ExactAlgorithm:
         all_class_size = len( self.all_class)
 
         best_solution = [-1 for i in range(all_class_size)]
-        best_solution_length = 1e8
+        best_solution_length_ = [1e8]
         tmp_solution = [-1 for i in range(all_class_size)]
+        # tmp_solution_size = len( tmp_solution )
 
         for i in range(all_class_size):
             if len( self.all_class[i]) == 1:
@@ -89,33 +90,27 @@ class ExactAlgorithm:
         all_cities_size = len(all_cities)
         all_cities_bool = [0 for i in range( self.n + 5)]
 
-        def creat_solution(i):
-            global best_solution_length
-            global best_solution
-            global tmp_solution
-
+        def creat_solution( i ):
             if i >= all_class_size:
                 length = 0
                 for j in range(all_class_size - 1):
                     # length pluses length of route part, length between route part j and j + 1
                     length = length + self.adjust_edge_length[int(tmp_solution[j])]
                     length = length + self.D[int(self.adjust_edge[
-                                                     int(tmp_solution[j])])][int(tmp_solution[j + 1])]
+                                                     int( tmp_solution[j])])][int(tmp_solution[j + 1])]
 
                 # length pluses length of last route part and length between last one and first one
-                length = length + self.adjust_edge_length[int(tmp_solution[-1])]
+                length = length + self.adjust_edge_length[ int(tmp_solution[ -1]) ]
                 length = length + self.D[int(self.adjust_edge[
-                                                 int(tmp_solution[-1])])][int(tmp_solution[0])]
+                                                 int(tmp_solution[ -1])])][int(tmp_solution[0])]
 
-                if length < best_solution_length:
-                    best_solution_length = length
-                    best_solution = tmp_solution
-                    print("length ")
-                    print(length)
+                if length < best_solution_length_[0] :
+                    best_solution_length_[0] = length
+                    for i in range( len(tmp_solution) ):
+                        best_solution[i] = tmp_solution[i]
                     print(" best solution length")
-                    print(best_solution_length)
+                    print(best_solution_length_[0])
                     print(best_solution)
-                return
 
             for j in range(all_cities_size):
                 if all_cities_bool[int(all_cities[j])] == 0 and \
@@ -132,7 +127,10 @@ class ExactAlgorithm:
 
         creat_solution( 0 )
 
-        return best_solution, best_solution_length
+        return best_solution, best_solution_length_[0]
+
 
     def main(self):
+        self._extract_same_edges()
+        self._length_of_edge_group()
         return self._solution_on_edge_group()
