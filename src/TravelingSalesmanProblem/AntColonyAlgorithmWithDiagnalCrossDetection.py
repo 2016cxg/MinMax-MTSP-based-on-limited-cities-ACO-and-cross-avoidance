@@ -1,3 +1,5 @@
+# This implementation adds cross avoidance on ant colony algorithm
+
 from AntColonyAlgorithm import AntColonyAlgorithm
 import matplotlib.pyplot as plt
 
