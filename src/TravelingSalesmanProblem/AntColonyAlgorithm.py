@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 # This implemetation is based on 《matlab在数学建模中的应用》
 
 import numpy as np

@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 class AntColonyAlgorithmForMTSP( object ) :
 
-    # global m                 number of ants
+    # global m                 number of ants, group size
     # global n                 number of cities
     # global alpha             weight of pheromone
     # global beta              weight of heuristic function
@@ -30,8 +30,10 @@ class AntColonyAlgorithmForMTSP( object ) :
     # global num               number of vehicles at depot city
     # global depot             depot city
 
-    def __init__(self, num = 2, depot = 0, m = 31, alpha = 1, beta = 5, vol = 0.2, q = 10,
-                 iter_max = 100, datasets = "/home/cheng/PycharmProjects/TSP/datasets/eil51"):
+    def __init__(self, num = 4, depot = 0, m = 31, alpha = 1, beta = 7, vol = 0.9, q = 10,
+                 iter_max = 100, datasets = "/home/cheng/PycharmProjects/TSP/datasets/eil51",
+                 K = 7, L = 17 ):
+        print( 1 )
         # initialization
         self.m = m
         self.alpha = alpha
@@ -41,6 +43,8 @@ class AntColonyAlgorithmForMTSP( object ) :
         self.iter_max = iter_max
         self.num = num
         self.depot = depot
+        self.K = K
+        self.L = L
 
         # load datasets and initialize matrixes
         # size of route table should be m * ( n - 1 + num )
@@ -63,7 +67,8 @@ class AntColonyAlgorithmForMTSP( object ) :
                     self.D[i, j ] = 1e-4
         self.Heu_F = 1./self.D
 
-    def _choose_next_city(self, forbiddenCities, n, A, pheromoneTable, heuristicTable, alpha, beta, left_vehicle, pos ):
+    def _choose_next_city(self, forbiddenCities, n, A, pheromoneTable, heuristicTable, alpha,
+                          beta, left_vehicle, pos , visitied_cities):
 
         def complementary_cities(forbiddenCities, n):
             cities = np.array([i for i in range(n)])
@@ -85,11 +90,14 @@ class AntColonyAlgorithmForMTSP( object ) :
         complementaryCity = complementaryCity.tolist()
         # print( type( complementaryCity ))
         length = len(complementaryCity)
-        # if number of left cities is less than left vehicles, return to depot city
-        if length <= left_vehicle:
+        # if number of left cities is less than left vehicles timeing K,
+        #   or more than visitied_cities
+        # return to depot city
+        if (length <= left_vehicle * self.K ) or ( visitied_cities >= self.L ):
             return self.depot
-        # depot city can be chosen until there are no vehicles left
-        if ( left_vehicle != 0 ) and ( A != self.depot ):
+        # depot city can be chosen when vihicle is not the last one
+        #   and vihicle has visited K cities
+        if ( left_vehicle != 0 ) and ( visitied_cities>= self.K ):
             complementaryCity.append( self.depot )
             # print( complementaryCity )
             length = length + 1
@@ -125,6 +133,7 @@ class AntColonyAlgorithmForMTSP( object ) :
                 if vehicle_length > length:
                     length = vehicle_length
                     route = vehicle_route
+                right = i
         return length, route
 
     def _route_length(self):
@@ -159,9 +168,9 @@ class AntColonyAlgorithmForMTSP( object ) :
         for i in range(self.m):
             for j in range(self.n - 1):
                 alpha_Tau[int(self.Table[i, j]), int(self.Table[i, j + 1])] = \
-                    alpha_Tau[int(self.Table[i, j]), int(self.Table[i, j + 1])] + self.Q / length[i]
+                    alpha_Tau[int(self.Table[i, j]), int(self.Table[i, j + 1])] + 1/length[i]
             alpha_Tau[int(self.Table[i, self.n - 1]), int(self.Table[i, 0])] = \
-                alpha_Tau[int(self.Table[i, self.n - 1]), int(self.Table[i, 0])] + self.Q / length[i]
+                alpha_Tau[int(self.Table[i, self.n - 1]), int(self.Table[i, 0])] + 1/length[i]
         self.Tau = (1 - self.vol) * self.Tau + alpha_Tau
 
     def _in_a_generations(self, iteration ):
@@ -185,6 +194,7 @@ class AntColonyAlgorithmForMTSP( object ) :
             # if number of left cities in chosen list is less than left_vehicle, make
             #   current vehicle return to depot city
             left_vehicle = self.num
+            visitied_cities = 0
             for j in range( 0, self.n + self.num -1 ):
                 next_city = self._choose_next_city( self.Table[i, 0:j ], # visited cities
                                                             self.n,              # all cities
@@ -194,9 +204,12 @@ class AntColonyAlgorithmForMTSP( object ) :
                                                             self.alpha,          # weight of pheromone
                                                             self.beta,           # weight of distance
                                                             left_vehicle,        # left vehicles
-                                                            j )
+                                                            j,
+                                                            visitied_cities)
+                visitied_cities = visitied_cities + 1
                 if next_city == self.depot:
                     left_vehicle = left_vehicle - 1
+                    visitied_cities = 0
                 self.Table[i, j] = next_city
 
         length = self._current_best_solution( iteration )
