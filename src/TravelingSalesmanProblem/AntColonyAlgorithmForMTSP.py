@@ -56,6 +56,8 @@ class AntColonyAlgorithmForMTSP( object ) :
         self.Route_best = np.zeros( ( self.iter_max, n + num - 1 ))
         self.Length_best = np.zeros( (self.iter_max, 1 ))
         self.Length_ave = np.zeros( ( self.iter_max, 1 ))
+        self.subtour_length = np.zeros( (self.iter_max, self.num ))
+        self.Limit_iter = 0
 
         # calculate distance matrix and heuristic function matrix
         self.D = np.zeros( ( n, n ))
@@ -126,41 +128,49 @@ class AntColonyAlgorithmForMTSP( object ) :
         length = 0
         route = np.array( [] )
         right = self.n + self.num - 1
+        k = self.num
+        lst = np.array( (1, self.num) )
         for i in range( self.n + self.num - 1 -1, -1, -1 ):
             if self.Table[ant_i, i] == self.depot:
                 vehicle_route = self.Table[ant_i, i:right]
                 vehicle_length = self._route_length_of_a_single_vehicle( vehicle_route )
+                lst[k-1] = vehicle_length
+                k = k-1
                 if vehicle_length > length:
                     length = vehicle_length
                     route = vehicle_route
                 right = i
-        return length, route
+        return length, route,lst
 
     def _route_length(self):
         length = np.zeros(self.m)
+        lst = np.zeros(self.m, self.num )
+
         for i in range(self.m):
-            length[i], _ = self._length_of_longest_route( i )
-        return length
+            length[i], _,  lst[i] = self._length_of_longest_route( i )
+        return length, lst
 
     def _index_of_best_solution(self, length ):
         return np.argmin(length)
 
-    def _update_global_best_solution(self, length, min_index, iteration):
+    def _update_global_best_solution(self, length, lst, min_index, iteration):
 
         if (iteration == 0) or (length[min_index] < self.Length_best[iteration - 1]):
             self.Length_best[iteration] = length[min_index]
+            self.subtour_length[iteration] = lst[min_index]
             self.Length_ave[iteration] = np.sum(length) / len(length)
             self.Route_best[iteration] = self.Table[min_index]
             self.Limit_iter = iteration
         else:
             self.Length_best[iteration] = self.Length_best[iteration - 1]
             self.Length_ave[iteration] = self.Length_ave[iteration - 1]
+            self.subtour_length[iteration] = self.subtour_length[iteration -1]
             self.Route_best[iteration] = self.Route_best[iteration - 1]
 
     def _current_best_solution(self, iteration):
-        length = self._route_length()
+        length,lst = self._route_length()
         min_index = self._index_of_best_solution( length )
-        self._update_global_best_solution(length, min_index, iteration )
+        self._update_global_best_solution(length, lst, min_index, iteration )
         return length
 
     def _update_pheromone_table(self, length):
@@ -226,6 +236,7 @@ class AntColonyAlgorithmForMTSP( object ) :
         print( self.Route_best[ self.Limit_iter] )
         print( self.Length_best[ self.Limit_iter ])
         print( len( set(self.Route_best[self.Limit_iter]) ) )
+        print( self.subtour_length[ self.Limit_iter] )
 
 
     def plot_route(self, route_index_ ):
@@ -247,6 +258,10 @@ class AntColonyAlgorithmForMTSP( object ) :
             ax.annotate("  %s" % route_index[i], xy = route[i], textcoords='data' )
 
         plt.show()
+    def print_length(self, route_index ):
+        self.Table[0] = np.array( route_index )
+        length, route, lst = self._length_of_longest_route(0)
+        print( lst )
 
     def plot(self):
         self.plot_route( self.Route_best[ self.Limit_iter] )
