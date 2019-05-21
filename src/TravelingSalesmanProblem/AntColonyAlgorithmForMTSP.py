@@ -229,6 +229,10 @@ class AntColonyAlgorithmForMTSP( object ) :
 
 
     def plot_route(self, route_index_ ):
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+
         route_index = route_index_[:]
         print( type( route_index ) )
         route_index = route_index.tolist()
@@ -238,6 +242,10 @@ class AntColonyAlgorithmForMTSP( object ) :
         # print( route )
         length = route.shape[0]
         plt.plot( [ route[i][0] for i in range( length )], [route[i][1] for i in range( length)], 'o-')
+
+        for i in range( length ):
+            ax.annotate("  %s" % route_index[i], xy = route[i], textcoords='data' )
+
         plt.show()
 
     def plot(self):
