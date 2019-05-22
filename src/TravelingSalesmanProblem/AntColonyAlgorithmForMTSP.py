@@ -10,7 +10,9 @@ import math
 import random
 import matplotlib.pyplot as plt
 
-class AntColonyAlgorithmForMTSP( object ) :
+from AntColonyAlgorithmWithDiagnalCrossDetection import AntColonyAlgorithmWithDiagnalCrossDetection
+
+class AntColonyAlgorithmForMTSP( AntColonyAlgorithmWithDiagnalCrossDetection ) :
 
     # global m                 number of ants, group size
     # global n                 number of cities
@@ -33,7 +35,9 @@ class AntColonyAlgorithmForMTSP( object ) :
     def __init__(self, num = 4, depot = 0, m = 31, alpha = 1, beta = 7, vol = 0.9, q = 10,
                  iter_max = 100, datasets = "/home/cheng/PycharmProjects/TSP/datasets/eil51",
                  K = 7, L = 17 ):
-        print( 1 )
+        AntColonyAlgorithmWithDiagnalCrossDetection.__init__(self, m=m, alpha=alpha, beta=beta, vol=vol, q=q,
+                 iter_max=iter_max, datasets= datasets )
+        # print( 1 )
         # initialization
         self.m = m
         self.alpha = alpha
@@ -144,7 +148,7 @@ class AntColonyAlgorithmForMTSP( object ) :
 
     def _route_length(self):
         length = np.zeros(self.m)
-        lst = np.zeros(self.m, self.num )
+        lst = np.zeros( (self.m, self.num) )
 
         for i in range(self.m):
             length[i], _,  lst[i] = self._length_of_longest_route( i )
@@ -226,10 +230,27 @@ class AntColonyAlgorithmForMTSP( object ) :
         self._update_pheromone_table( length )
 
     def excution(self):
-        print(" in excution of no diagnal cross avoidence")
+        # print(" in excution of no diagnal cross avoidence")
         for i in range( self.iter_max ):
-            print( "in iteration %d" % i )
+            # print( "in iteration %d" % i )
             self._in_a_generations( i )
+        # print("in eliminate cross")
+        self.Table[0] = self.Route_best[self.Limit_iter]
+        self._eliminate_cross_in_MTSP( 0 )
+        length , _, lst = self._length_of_longest_route( 0 )
+        # print("==", self.subtour_length[self.Limit_iter], lst)
+        self.subtour_length[ self.Limit_iter ] = lst
+        self.Route_best[ self.Limit_iter ] = self.Table[ 0 ]
+        self.Length_best[ self.Limit_iter ] = length
+
+    def _eliminate_cross_in_MTSP(self, ant_i ):
+        right = self.n + self.num - 1
+        for i in range( self.n + self.num - 1 -1, -1, -1 ):
+            if self.Table[ant_i, i] == self.depot:
+                vehicle_route = self.Table[ant_i, i:right]
+                vehicle_route = self._eliminate_cross( vehicle_route.tolist() )
+                self.Table[ant_i, i:right ] = vehicle_route
+                right = i
 
     def print_information(self):
         print(self.Limit_iter)
@@ -238,6 +259,18 @@ class AntColonyAlgorithmForMTSP( object ) :
         print( len( set(self.Route_best[self.Limit_iter]) ) )
         print( self.subtour_length[ self.Limit_iter] )
 
+    def test_eliminate_cross_in_MTSP(self, _solution ):
+        print( _solution )
+        self.Table[0] = np.array( _solution )
+        print( self.Table[0] )
+        self.Limit_iter = 0
+        self._eliminate_cross_in_MTSP( 0 )
+        print( self.Table[0] )
+        _, _, lst = self._length_of_longest_route( self.Limit_iter )
+        print(lst)
+        self.subtour_length[ self.Limit_iter ] = lst
+        print( self.subtour_length[0] )
+        self.print_information()
 
     def plot_route(self, route_index_ ):
 
@@ -262,6 +295,9 @@ class AntColonyAlgorithmForMTSP( object ) :
         self.Table[0] = np.array( route_index )
         length, route, lst = self._length_of_longest_route(0)
         print( lst )
+
+    def return_best(self):
+        return self.Length_best[ self.Limit_iter ]
 
     def plot(self):
         self.plot_route( self.Route_best[ self.Limit_iter] )
