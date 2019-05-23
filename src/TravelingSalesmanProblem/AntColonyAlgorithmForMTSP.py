@@ -33,7 +33,7 @@ class AntColonyAlgorithmForMTSP( AntColonyAlgorithmWithDiagnalCrossDetection ) :
     # global depot             depot city
 
     def __init__(self, num = 4, depot = 0, m = 31, alpha = 1, beta = 7, vol = 0.9, q = 10,
-                 iter_max = 100, datasets = "/home/cheng/PycharmProjects/TSP/datasets/eil51",
+                 iter_max = 100, datasets = "/home/cheng/PycharmProjects/TSP/datasets/eil51", inittrail=1,
                  K = 7, L = 17 ):
         AntColonyAlgorithmWithDiagnalCrossDetection.__init__(self, m=m, alpha=alpha, beta=beta, vol=vol, q=q,
                  iter_max=iter_max, datasets= datasets )
@@ -55,7 +55,7 @@ class AntColonyAlgorithmForMTSP( AntColonyAlgorithmWithDiagnalCrossDetection ) :
         self.data = np.loadtxt( datasets )[ : , 1:]
         n = self.data.shape[0]
         self.n = n
-        self.Tau = np.ones((n , n))
+        self.Tau = np.ones((n , n)) * inittrail
         self.Table = np.zeros( ( self.m, n + num - 1 ))
         self.Route_best = np.zeros( ( self.iter_max, n + num - 1 ))
         self.Length_best = np.zeros( (self.iter_max, 1 ))
