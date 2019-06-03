@@ -241,14 +241,14 @@ class AntColonyAlgorithmForMTSP( AntColonyAlgorithmWithDiagnalCrossDetection ) :
             # print( "in iteration %d" % i )
             self._in_a_generations( i )
         print("=====")
-        # # print("in eliminate cross")
-        # self.Table[0] = self.Route_best[self.Limit_iter]
-        # self._eliminate_cross_in_MTSP( 0 )
-        # length , _, lst = self._length_of_longest_route( 0 )
-        # # print("==", self.subtour_length[self.Limit_iter], lst)
-        # self.subtour_length[ self.Limit_iter ] = lst
-        # self.Route_best[ self.Limit_iter ] = self.Table[ 0 ]
-        # self.Length_best[ self.Limit_iter ] = length
+        # print("in eliminate cross")
+        self.Table[0] = self.Route_best[self.Limit_iter]
+        self._eliminate_cross_in_MTSP( 0 )
+        length , _, lst = self._length_of_longest_route( 0 )
+        # print("==", self.subtour_length[self.Limit_iter], lst)
+        self.subtour_length[ self.Limit_iter ] = lst
+        self.Route_best[ self.Limit_iter ] = self.Table[ 0 ]
+        self.Length_best[ self.Limit_iter ] = length
 
     def return_best_route(self):
         return self.Route_best[self.Limit_iter]
