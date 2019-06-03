@@ -129,6 +129,9 @@ class AntColonyAlgorithmForMTSP( AntColonyAlgorithmWithDiagnalCrossDetection ) :
         return route_length
 
     def _length_of_longest_route(self, ant_i ):
+        # print("===============")
+        # print(self.Table[ant_i])
+        # print(self.num)
         length = 0
         route = np.array( [] )
         right = self.n + self.num - 1
@@ -138,12 +141,15 @@ class AntColonyAlgorithmForMTSP( AntColonyAlgorithmWithDiagnalCrossDetection ) :
             if self.Table[ant_i, i] == self.depot:
                 vehicle_route = self.Table[ant_i, i:right]
                 vehicle_length = self._route_length_of_a_single_vehicle( vehicle_route )
+                # print(k-1)
+                # print(lst)
                 lst[k-1] = vehicle_length
                 k = k-1
                 if vehicle_length > length:
                     length = vehicle_length
                     route = vehicle_route
                 right = i
+        # print("over------------")
         return length, route,lst
 
     def _route_length(self):
@@ -234,14 +240,18 @@ class AntColonyAlgorithmForMTSP( AntColonyAlgorithmWithDiagnalCrossDetection ) :
         for i in range( self.iter_max ):
             # print( "in iteration %d" % i )
             self._in_a_generations( i )
-        # print("in eliminate cross")
-        self.Table[0] = self.Route_best[self.Limit_iter]
-        self._eliminate_cross_in_MTSP( 0 )
-        length , _, lst = self._length_of_longest_route( 0 )
-        # print("==", self.subtour_length[self.Limit_iter], lst)
-        self.subtour_length[ self.Limit_iter ] = lst
-        self.Route_best[ self.Limit_iter ] = self.Table[ 0 ]
-        self.Length_best[ self.Limit_iter ] = length
+        print("=====")
+        # # print("in eliminate cross")
+        # self.Table[0] = self.Route_best[self.Limit_iter]
+        # self._eliminate_cross_in_MTSP( 0 )
+        # length , _, lst = self._length_of_longest_route( 0 )
+        # # print("==", self.subtour_length[self.Limit_iter], lst)
+        # self.subtour_length[ self.Limit_iter ] = lst
+        # self.Route_best[ self.Limit_iter ] = self.Table[ 0 ]
+        # self.Length_best[ self.Limit_iter ] = length
+
+    def return_best_route(self):
+        return self.Route_best[self.Limit_iter]
 
     def _eliminate_cross_in_MTSP(self, ant_i ):
         right = self.n + self.num - 1
@@ -281,6 +291,7 @@ class AntColonyAlgorithmForMTSP( AntColonyAlgorithmWithDiagnalCrossDetection ) :
         print( type( route_index ) )
         route_index = route_index.tolist()
         route_index.append( route_index[0] )
+
         route_index = [ int(i) for i in route_index]
         route = self.data[ route_index ]
         # print( route )
