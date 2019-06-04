@@ -21,3 +21,5 @@ This algorithm is implemented on Pycharm with jupyter notebook enabled
 # How to run
 Download the project your local plateform and you can refer to the *main.py* file in *src* folder to run the algorithm. Actually, the algorithm is implemented in *src/TravelingSalesmanProblem* folder and it is easy to find the parameters' meaning by notation in each of the source file. In addition, the other files with a '.ipynb' is test files, the most usedful one goes to *test_on_ant_colony_algorithm_for_mtsp.ipynb*.
 
+# Note
+I used absolute path, thus you should be careful. However if you find any problems in datasets, don't hesitate to refer to **datasets** and **test_result** folders.
